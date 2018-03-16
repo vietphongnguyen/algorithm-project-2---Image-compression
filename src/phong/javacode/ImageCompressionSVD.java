@@ -23,7 +23,6 @@ public class ImageCompressionSVD {
 			
 		} else { // run in command line mode
 			String optionMode = args[0];
-
 			if (optionMode.equals("1")) {	// Yourprogram.exe 1 image.pgm 		"1 test01_txt.pgm"		1 P.pgm
 				String inputFileName = args[1];
 				new textPgmToBinary(inputFileName);
@@ -54,7 +53,7 @@ public class ImageCompressionSVD {
 				if (svdFileName.equals("")) svdFileName = "header.txt";
 				SVD svd = new SVD(header.getM(), header.getN(), header.getGreyScaleLevel(), svdFileName);
 				
-				int k = header.getM();
+				int k = (header.getM() > header.getN())? header.getN() : header.getM() ;
 				try {
 					k = Integer.parseInt(args[3]);
 				} catch (Exception e) {
@@ -63,13 +62,10 @@ public class ImageCompressionSVD {
 				svd.setK(k);
 
 				try {
-					svd.saveToFile("image_b.pgm.SVD");
+					svd.saveKToFile("image_b.pgm.SVD");
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				
 			}
 			if (optionMode.equals("4")) {	// Yourprogram.exe 4 image_b.pgm.SVD
 				String inputFileName;
@@ -79,15 +75,12 @@ public class ImageCompressionSVD {
 					inputFileName = "image_b.pgm.SVD";
 					System.out.println("Use default inputFileName : " + inputFileName);
 				}
-				
 				try {
 					binarySVDtoKPgmImage binarySVD = new binarySVDtoKPgmImage(inputFileName);
 					
 					//binarySVD.saveToK_PGMTextFile(inputFileName.substring(0, inputFileName.length() - 9) + "k.pgm");
 					binarySVD.saveToK_PGMTextFile_UsingJamaMatrix(inputFileName.substring(0, inputFileName.length() - 9) + "k.pgm");
-					
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				

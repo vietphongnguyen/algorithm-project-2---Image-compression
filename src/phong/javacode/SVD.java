@@ -54,21 +54,20 @@ public class SVD {
 			
 			scanner.close();
 			
-			System.out.println("Unitary matrix U ( " + M + " x " + M + " ) :");
 			UMatrix = new Matrix(U,M,M);
-			UMatrix.print(M, 5);
-			System.out.println();
+			//System.out.println("Unitary matrix U ( " + M + " x " + M + " ) :");
+			//UMatrix.print(M, 5);
+			//System.out.println();
 			
-			
-			System.out.println("Rectangular diagonal matrix  RD ( " + M + " x " + N + " ) :");
 			RDMatrix = new Matrix(RD,M,N);
-			RDMatrix.print(N, 5);
-			System.out.println();
+			//System.out.println("Rectangular diagonal matrix  RD ( " + M + " x " + N + " ) :");
+			//RDMatrix.print(N, 5);
+			//System.out.println();
 			
-			System.out.println("V matrix ( " + N + " x " + N + " ) :");
 			VMatrix = new Matrix(V,N,N);
-			VMatrix.print(N, 5);
-			System.out.println();
+			//System.out.println("V matrix ( " + N + " x " + N + " ) :");
+			//VMatrix.print(N, 5);
+			//System.out.println();
 			
 		} catch (FileNotFoundException e) {
 			
@@ -84,7 +83,42 @@ public class SVD {
 		if (m2>n2) return n2;
 		else return m2;
 	}
-	public void saveToFile(String outputFileName) throws IOException {
+
+	public void saveKToFile(String outputFileName) throws IOException {
+		
+		OutputStream outputStream = new FileOutputStream(outputFileName);
+		
+		if (K>M) K=M;
+		if (K>N) K=N;
+		
+		write2ByteInt(outputStream, M);
+		write2ByteInt(outputStream, N);
+		write2ByteInt(outputStream, K);
+		outputStream.write(GreyScaleLevel);
+		
+		// Write U matrix m x m 
+		for (int i = 0; i < M; i++)
+			for (int j = 0; j < K; j++)
+				write2ByteDouble(outputStream, U[i][j]);
+
+		// write RD: Rectangular diagonal matrix m x n (Only m value on the diagonal )
+		for (int i = 0; i < K; i++) 
+			write2ByteDouble(outputStream, RD[i][i]);
+		
+		// write V matrix n x n
+		for (int i = 0; i < K; i++)
+			for (int j = 0; j < N; j++)
+				write2ByteDouble(outputStream, V[j][i]); // Must swap i,j to j,i because V need to be transpose
+		
+		
+		outputStream.flush();
+		outputStream.close();
+		System.out.println("\nSuccessfully saved to '" + outputFileName + "'");
+		
+		
+	}
+	
+	public void saveEverythingToFile(String outputFileName) throws IOException {
 		
 		OutputStream outputStream = new FileOutputStream(outputFileName);
 		
@@ -183,7 +217,7 @@ public class SVD {
 		bb[0] = byte1;
 		byte byte2 =  (byte) (bit[7] * 128 +  bit[6] * 64 +  bit[5] * 32 +  bit[4] * 16 + bit[3] * 8 +  bit[2] * 4 +  bit[1] * 2 +  bit[0]) ;
 		bb[1] = byte2;
-		for (int i = 15; i>=0 ; i--) System.out.print(bit[i] + " "); System.out.println();
+		//for (int i = 15; i>=0 ; i--) System.out.print(bit[i] + " "); System.out.println();
 		
 	}
 	

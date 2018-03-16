@@ -37,51 +37,49 @@ public class binarySVDtoKPgmImage {
 		
 		U = new double [M][M];
 		for (int i = 0; i < M; i++)
-			for (int j = 0; j < i; j++)
+			for (int j = 0; j < M; j++)
 				U[i][j] = 0;
 		
-		// Read U matrix m x m (only upper half of U)
+		// Read U matrix m x m 
 		for (int i = 0; i < M; i++)
-			for (int j = 0; j < M; j++)
+			for (int j = 0; j < K; j++)
 				U[i][j] = read2ByteDouble(inputStream);
 
-		// Read RD: Rectangular diagonal matrix m x n (Only m value on the diagonal )
+		// Read RD: Rectangular diagonal matrix m x n (Only K value on the diagonal )
 		RD = new double [M][N];
 		for (int i = 0; i < M; i++)
 			for (int j = 0; j < N; j++)
 				RD[i][j] =0;
-		for (int i = 0; i < min(M,N); i++)
+		for (int i = 0; i < K; i++)
 			RD[i][i] = read2ByteDouble(inputStream);
 
 		// Read V matrix n x n
 		V = new double [N][N];
 		for (int i = 0; i < N; i++)
 			for (int j = 0; j < N; j++)
-				V[i][j] = read2ByteDouble(inputStream);
+				V[i][j] =0;
+		for (int i = 0; i < K; i++)
+			for (int j = 0; j < N; j++)
+				V[j][i] = read2ByteDouble(inputStream); // Must swap i,j to j,i because V need to be transpose
 
 		inputStream.close();
 		System.out.println("\nSuccessfully read from '" + inputFileName + "'");
 
-		System.out.println("Unitary matrix U ( " + M + " x " + M + " ) :");
 		UMatrix = new Matrix(U,M,M);
-		UMatrix.print(M, 5);
+		//System.out.println("Unitary matrix U ( " + M + " x " + M + " ) :");
+		//UMatrix.print(M, 5);
 		
-		System.out.println("Rectangular diagonal matrix  RD ( " + M + " x " + N + " ) :");
 		RDMatrix = new Matrix(RD,M,N);
-		RDMatrix.print(N, 5);
+		//System.out.println("Rectangular diagonal matrix  RD ( " + M + " x " + N + " ) :");
+		//RDMatrix.print(N, 5);
 		
-		System.out.println("V matrix ( " + N + " x " + N + " ) :");
 		VMatrix = new Matrix(V,N,N);
-		VMatrix.print(N, 5);
+		//System.out.println("V matrix ( " + N + " x " + N + " ) :");
+		//VMatrix.print(N, 5);
 		
 	}
 
-	private int min(int m2, int n2) {
-		if (m2>n2) return n2;
-		else return m2;
-	}
-
-	private float read2ByteDouble(InputStream inputStream) throws IOException {
+	private double read2ByteDouble(InputStream inputStream) throws IOException {
 		byte [] bb = new byte[2];
 		bb[0] = (byte) inputStream.read();
 		bb[1] = (byte) inputStream.read();
@@ -90,11 +88,11 @@ public class binarySVDtoKPgmImage {
 		
 	}
 
-	private static float twoByteToDouble(byte[] bb) {
+	private static double twoByteToDouble(byte[] bb) {
 		
 		if (  (bb[0] ==0) && (bb[1] ==0) )  return 0.0f;
 				
-		float f =0;
+		double d =0;
 		byte[] bit = new byte[16];
 		for (int i =0; i<16 ; i++) bit[i] = 0;
 		
@@ -121,14 +119,14 @@ public class binarySVDtoKPgmImage {
 			powers *=2;
 		}
 		
-		f = (float) (mantissa * Math.pow(10, exponent));
+		d = (double) (mantissa * Math.pow(10, exponent));
 		
-		if (bit[15] == 1) f= -f ;
+		if (bit[15] == 1) d= -d ;
 		
 //		for (int i =15; i>=0 ; i--) System.out.print(bit[i]);
 //		System.out.println();
 		
-		return f;
+		return d;
 	}
 
 	private int read2ByteInt(InputStream inputStream) throws IOException {
@@ -151,6 +149,11 @@ public class binarySVDtoKPgmImage {
     	V_transpose = MatrixTranspose(V,N,N);
     	byte[][] image = new byte[M][N];
     	image = MatrixMutiply(U,M,M,RD,M,N,V_transpose,N,N);
+    	for (int i=0; i<M ; i++) 
+    		for (int j=0; j<N ; j++) {
+    			if (image[i][j] > GreyScaleLevel) image[i][j] = (byte) GreyScaleLevel;
+    			if (image[i][j] < 0) image[i][j] = 0;
+    		}
     	
     	for (int i=0; i<M ; i++) {
     		for (int j=0; j<N ; j++)
@@ -223,7 +226,7 @@ public class binarySVDtoKPgmImage {
     	Matrix ReconstructImage = new Matrix(M,N);
     	
 		ReconstructImage = UMatrix.times(RDMatrix).times(VMatrix.transpose());
-    	ReconstructImage.print(N, 5);
+    	//ReconstructImage.print(N, 5);
     	
     	int cellValue;
     	for (int i=0; i<M ; i++) {
@@ -250,8 +253,8 @@ public class binarySVDtoKPgmImage {
 		bb[0] = 78;
 		bb[1] = 82;
 		
-		float f = twoByteToDouble(bb);
-		//float f = 0.70710678f;
+		double f = twoByteToDouble(bb);
+		//double f = 0.70710678f;
 		
 		System.out.println(f);
 
