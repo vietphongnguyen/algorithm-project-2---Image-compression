@@ -60,7 +60,7 @@ public class binarySVDtoKPgmImage {
 				V[i][j] =0;
 		for (int i = 0; i < K; i++)
 			for (int j = 0; j < N; j++)
-				V[j][i] = read2ByteDouble(inputStream); // Must swap i,j to j,i because V need to be transpose
+				V[i][j] = read2ByteDouble(inputStream); 
 
 		inputStream.close();
 		System.out.println("\nSuccessfully read from '" + inputFileName + "'");

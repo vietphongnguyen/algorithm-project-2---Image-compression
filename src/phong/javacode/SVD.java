@@ -108,7 +108,7 @@ public class SVD {
 		// write V matrix n x n
 		for (int i = 0; i < K; i++)
 			for (int j = 0; j < N; j++)
-				write2ByteDouble(outputStream, V[j][i]); // Must swap i,j to j,i because V need to be transpose
+				write2ByteDouble(outputStream, V[i][j]); 
 		
 		
 		outputStream.flush();
